@@ -3,6 +3,8 @@ import streamlit as st
 from utils.pdf_loader import extract_text_from_pdf
 from utils.text_splitter import split_text
 from utils.rag_pipeline import create_vector_store
+from utils.retriever import search_documents
+
 
 st.title("Enterprise Document Analytics Pipeline")
 
@@ -21,6 +23,27 @@ if uploaded_file is not None:
 
     # Create FAISS vector store
     vector_store = create_vector_store(chunks)
+
+    query = st.text_input(
+    "Ask a question about the document"
+)
+
+if query:
+
+    docs = search_documents(
+        vector_store,
+        query
+    )
+
+    st.subheader("Retrieved Chunks")
+
+    for i, doc in enumerate(docs, start=1):
+
+        st.write(f"Chunk {i}")
+
+        st.write(doc.page_content)
+
+        st.write("----------------")
 
     st.success("Vector Store Created Successfully!")
 
