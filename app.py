@@ -4,7 +4,7 @@ from utils.pdf_loader import extract_text_from_pdf
 from utils.text_splitter import split_text
 from utils.rag_pipeline import create_vector_store
 from utils.retriever import search_documents
-
+from utils.llm import get_answer
 
 st.title("Enterprise Document Analytics Pipeline")
 
@@ -35,16 +35,18 @@ if query:
         query
     )
 
-    st.subheader("Retrieved Chunks")
+    context = "\n".join(
+        [doc.page_content for doc in docs]
+    )
 
-    for i, doc in enumerate(docs, start=1):
+    answer = get_answer(
+        context,
+        query
+    )
 
-        st.write(f"Chunk {i}")
+    st.subheader("Answer")
 
-        st.write(doc.page_content)
-
-        st.write("----------------")
-
+    st.write(answer)
     st.success("Vector Store Created Successfully!")
 
     # Display extracted text
