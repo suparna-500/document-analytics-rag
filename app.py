@@ -1,6 +1,8 @@
 import streamlit as st
+
 from utils.pdf_loader import extract_text_from_pdf
 from utils.text_splitter import split_text
+from utils.rag_pipeline import create_vector_store
 
 st.title("Enterprise Document Analytics Pipeline")
 
@@ -17,18 +19,24 @@ if uploaded_file is not None:
     # Split text into chunks
     chunks = split_text(text)
 
-    # Show extracted text
+    # Create FAISS vector store
+    vector_store = create_vector_store(chunks)
+
+    st.success("Vector Store Created Successfully!")
+
+    # Display extracted text
     st.subheader("Extracted Text")
+
     st.text_area(
         "PDF Content",
         text,
         height=300
     )
 
-    # Show chunk information
+    # Display chunk information
     st.subheader("Number of Chunks")
     st.write(len(chunks))
 
-    # Show first chunk
+    # Display first chunk
     st.subheader("First Chunk")
     st.write(chunks[0])
