@@ -6,6 +6,8 @@ from utils.rag_pipeline import create_vector_store
 from utils.retriever import search_documents
 from utils.llm import get_answer
 
+st.set_page_config(page_title="Enterprise Document Analytics Pipeline")
+
 st.title("Enterprise Document Analytics Pipeline")
 
 uploaded_file = st.file_uploader(
@@ -21,47 +23,50 @@ if uploaded_file is not None:
     # Split text into chunks
     chunks = split_text(text)
 
-    # Create FAISS vector store
+    # Create vector store
     vector_store = create_vector_store(chunks)
 
-    query = st.text_input(
-    "Ask a question about the document"
-)
-
-if query:
-
-    docs = search_documents(
-        vector_store,
-        query
-    )
-
-    context = "\n".join(
-        [doc.page_content for doc in docs]
-    )
-
-    answer = get_answer(
-        context,
-        query
-    )
-
-    st.subheader("Answer")
-
-    st.write(answer)
     st.success("Vector Store Created Successfully!")
 
-    # Display extracted text
-    st.subheader("Extracted Text")
+    # Ask question
+    query = st.text_input("Ask a question about the document")
 
+    if query:
+
+        docs = search_documents(
+            vector_store,
+            query
+        )
+
+        st.subheader("Retrieved Chunks")
+
+        for i, doc in enumerate(docs, start=1):
+            st.write(f"Chunk {i}")
+            st.write(doc.page_content)
+            st.write("---")
+
+        context = "\n".join(
+            [doc.page_content for doc in docs]
+        )
+
+        answer = get_answer(
+            context,
+            query
+        )
+
+        st.subheader("Answer")
+        st.write(answer)
+
+    st.subheader("Extracted Text")
     st.text_area(
         "PDF Content",
         text,
         height=300
     )
 
-    # Display chunk information
     st.subheader("Number of Chunks")
     st.write(len(chunks))
 
-    # Display first chunk
-    st.subheader("First Chunk")
-    st.write(chunks[0])
+    if chunks:
+        st.subheader("First Chunk")
+        st.write(chunks[0])
